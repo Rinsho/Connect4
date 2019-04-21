@@ -4,7 +4,6 @@ package core;
 import java.net.*;
 import java.io.*;
 import core.*;
-import java.lang.InterruptedException;
 import core.NetworkProtocol.*;
 
 /** Connect4Server stub for client testing.
