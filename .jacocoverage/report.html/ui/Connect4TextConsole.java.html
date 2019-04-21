@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Connect4TextConsole.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;ConnectFour&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">ui</a> &gt; <span class="el_source">Connect4TextConsole.java</span></div><h1>Connect4TextConsole.java</h1><pre class="source lang-java linenums">package ui;
+
+import core.*;
+import java.util.Scanner;
+import java.util.InputMismatchException;
+import javafx.application.Application;
+
+/**
+ * Text console for displaying the Connect4 game.
+ * 
+ * @author Jon McKee
+ * @version 1.0
+ */
+public class Connect4TextConsole
+{
+    private static final char PLAYER1_PIECE = 'X';
+    private static final char PLAYER2_PIECE = 'O';
+    private final IConnect4Client client;
+    private int playerID;
+    private final int[][] board;
+    
+    /**
+     * Creates a new text console to play Connect4.
+     * 
+     * @param versusComputer Whether this is versus AI or another player.
+     */
+    public Connect4TextConsole(boolean versusComputer)
+<span class="nc" id="L28">    {</span>
+<span class="nc" id="L29">        board = new int[Connect4Constants.ROW_COUNT][Connect4Constants.COLUMN_COUNT];</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        if (versusComputer)</span>
+<span class="nc" id="L31">            client = new Connect4ComputerPlayer(</span>
+                    this::gameStart,
+                    this::boardUpdate,
+                    this::gameStatus);
+        else
+<span class="nc" id="L36">            client = new Connect4Client(</span>
+                    this::gameStart,
+                    this::boardUpdate,
+                    this::gameStatus);
+<span class="nc" id="L40">    }</span>
+    
+    /**
+     * Manages a turn.
+     */
+    private void takeTurn()
+    {
+<span class="nc" id="L47">        Scanner input = new Scanner(System.in);</span>
+<span class="nc" id="L48">        displayBoard();</span>
+<span class="nc" id="L49">        System.out.println(&quot;Your turn. Choose a column number from 1-7.&quot;);  </span>
+<span class="nc" id="L50">        int column = 0;</span>
+        try
+        {
+<span class="nc" id="L53">            column = input.nextInt();</span>
+<span class="nc" id="L54">            client.addPiece(--column);</span>
+        }
+<span class="nc" id="L56">        catch (InputMismatchException ex)</span>
+        {
+<span class="nc" id="L58">            System.out.println(&quot;That is not a valid column.&quot;);</span>
+<span class="nc" id="L59">            takeTurn();</span>
+<span class="nc" id="L60">        }       </span>
+<span class="nc" id="L61">    }</span>
+    
+    /** 
+     * Starts the game.
+     */
+    public void playGame()
+    {
+<span class="nc" id="L68">        client.requestGame();</span>
+<span class="nc" id="L69">    }</span>
+    
+    /**
+     * Displays the Connect4 game board.
+     */
+    public void displayBoard()
+    {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        for (int row = Connect4Constants.ROW_COUNT; row &gt; 0; row--)</span>
+        {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            for (int col = 0; col &lt; Connect4Constants.COLUMN_COUNT; col++)</span>
+            {
+<span class="nc" id="L80">                char piece = ' ';</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                if (board[row - 1][col] == Connect4Constants.PLAYER1) </span>
+<span class="nc" id="L82">                    piece = PLAYER1_PIECE;</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                else if (board[row - 1][col] == Connect4Constants.PLAYER2)</span>
+<span class="nc" id="L84">                    piece = PLAYER2_PIECE;</span>
+<span class="nc" id="L85">                System.out.print(&quot;|&quot; + piece);</span>
+            }
+<span class="nc" id="L87">            System.out.println('|');</span>
+        }
+<span class="nc" id="L89">    }</span>
+    
+    /**
+     * Clears the board and associated game data.
+     */
+    public final void clearBoard()
+    {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        for (int row = 0; row &lt; Connect4Constants.ROW_COUNT; row++)</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            for (int col = 0; col &lt; Connect4Constants.COLUMN_COUNT; col++)</span>
+<span class="nc" id="L98">                board[row][col] = 0;</span>
+<span class="nc" id="L99">    }</span>
+    
+    /** Callback for a game request.
+     * 
+     * @param playerID ID assigned to this player.
+     */
+    public void gameStart(int playerID)
+    {
+<span class="nc" id="L107">        this.playerID = playerID;</span>
+<span class="nc" id="L108">    }</span>
+    
+    /** Callback for updating the board.
+     * 
+     * @param player Player that placed a piece.
+     * @param row Row the piece is placed in.
+     * @param column Column the piece is placed in.
+     */
+    public void boardUpdate(int player, int row, int column)
+    {
+<span class="nc" id="L118">        board[row][column] = player;</span>
+<span class="nc" id="L119">    }</span>
+    
+    /** Callback for current game status.
+     * 
+     * @param status Current {@link GameStatus}.
+     */
+    public void gameStatus(GameStatus status)
+    {
+<span class="nc bnc" id="L127" title="All 7 branches missed.">        switch (status)</span>
+        {
+            case NONE:
+<span class="nc" id="L130">                takeTurn();</span>
+<span class="nc" id="L131">                break;</span>
+            case CANCELLED:
+<span class="nc" id="L133">                System.out.println(&quot;Game cancelled.&quot;);</span>
+<span class="nc" id="L134">                break;</span>
+            case INVALID_MOVE:
+<span class="nc" id="L136">                takeTurn();</span>
+<span class="nc" id="L137">                break;</span>
+            case TIE: 
+<span class="nc" id="L139">                System.out.println(&quot;Game tied.&quot;);</span>
+<span class="nc" id="L140">                displayBoard();</span>
+<span class="nc" id="L141">                break;</span>
+            case PLAYER1_WIN:
+<span class="nc bnc" id="L143" title="All 2 branches missed.">                if (playerID == Connect4Constants.PLAYER1)</span>
+<span class="nc" id="L144">                    System.out.println(&quot;You won!&quot;);</span>
+                else
+<span class="nc" id="L146">                    System.out.println(&quot;You lost.&quot;);</span>
+<span class="nc" id="L147">                displayBoard();</span>
+<span class="nc" id="L148">                break;</span>
+            case PLAYER2_WIN:
+<span class="nc bnc" id="L150" title="All 2 branches missed.">                if (playerID == Connect4Constants.PLAYER2)</span>
+<span class="nc" id="L151">                    System.out.println(&quot;You won!&quot;);</span>
+                else
+<span class="nc" id="L153">                    System.out.println(&quot;You lost.&quot;);</span>
+<span class="nc" id="L154">                displayBoard();</span>
+                break;
+        }
+<span class="nc" id="L157">    }</span>
+    
+    /**
+     * Manages the progress of the Connect4 game.
+     * 
+     * @param args the command line arguments
+     */
+    public static void main(String[] args)
+    {
+<span class="nc" id="L166">        Scanner input = new Scanner(System.in);</span>
+<span class="nc" id="L167">        System.out.println(&quot;Use the GUI (Y/N)? &quot;);</span>
+<span class="nc" id="L168">        String choice = &quot; &quot;;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        while (!choice.equalsIgnoreCase(&quot;Y&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">               !choice.equalsIgnoreCase(&quot;N&quot;))</span>
+        {
+<span class="nc" id="L172">            choice = input.nextLine();</span>
+        }
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (choice.equalsIgnoreCase(&quot;Y&quot;))</span>
+<span class="nc" id="L175">            Application.launch(Connect4GUI.class);</span>
+        else
+        {
+<span class="nc" id="L178">            System.out.println(&quot;Begin Game. Enter 'P' if you want to play against&quot; +</span>
+                    &quot; another player; enter 'C' to play against a computer.&quot;);
+<span class="nc" id="L180">            choice = &quot; &quot;;</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">            while (!choice.equalsIgnoreCase(&quot;C&quot;) &amp;&amp;</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">                   !choice.equalsIgnoreCase(&quot;P&quot;))</span>
+            {
+<span class="nc" id="L184">                choice = input.nextLine();</span>
+            }
+<span class="nc" id="L186">            Connect4TextConsole console =</span>
+<span class="nc" id="L187">                    new Connect4TextConsole(choice.equalsIgnoreCase(&quot;C&quot;));</span>
+<span class="nc" id="L188">            console.playGame();</span>
+        }
+<span class="nc" id="L190">    }   </span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

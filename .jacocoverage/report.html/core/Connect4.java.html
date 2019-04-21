@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Connect4.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;ConnectFour&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">core</a> &gt; <span class="el_source">Connect4.java</span></div><h1>Connect4.java</h1><pre class="source lang-java linenums">package core;
+
+/**
+ * Represents a game of Connect4.
+ * 
+ * @author Jon McKee
+ * @version 1.3
+ */
+public class Connect4
+{
+    private static final int WIN_CONDITION_COUNT = 4;   
+    private final int[] columnState;
+    private final int[][] boardState;
+    
+    /**
+     * Creates a new Connect4 game.
+     */
+    public Connect4()
+<span class="fc" id="L19">    {</span>
+<span class="fc" id="L20">        columnState = new int[Connect4Constants.COLUMN_COUNT];</span>
+<span class="fc" id="L21">        boardState = </span>
+            new int[Connect4Constants.ROW_COUNT][Connect4Constants.COLUMN_COUNT];
+<span class="fc" id="L23">        clear();</span>
+<span class="fc" id="L24">    }</span>
+    
+    /**
+     * Check for a full board.
+     * 
+     * @return Whether the board is full (true) or not (false).
+     */
+    private boolean isBoardFull()
+    {
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        for (int i = 0; i &lt; Connect4Constants.COLUMN_COUNT; i++)</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">            if (columnState[i] &lt; Connect4Constants.ROW_COUNT)</span>
+<span class="fc" id="L35">                return false;</span>
+<span class="fc" id="L36">        return true;</span>
+    }
+    
+    /** Check if a column is valid.
+     * A column is valid if:
+     * 1) It isn't full.
+     * 2) Is between 0 and COLUMN_COUNT - 1
+     * 
+     * @param column Column to check.
+     * @return Whether the column is valid.
+     */
+    public boolean isValidColumn(int column)
+    {
+<span class="fc bfc" id="L49" title="All 6 branches covered.">        return column &gt;= 0 &amp;&amp; </span>
+               column &lt; Connect4Constants.COLUMN_COUNT &amp;&amp;
+               columnState[column] &lt; Connect4Constants.ROW_COUNT;
+    }
+    
+    /**
+     * Adds a piece to the board for a given player.
+     * 
+     * @param player Player setting the piece.
+     * @param column Column to set the piece in (0 to ROW_COUNT - 1)
+     * @throws InvalidColumnException Column value is invalid.
+     * @return Row piece was added to.
+     */
+    public int addPiece(int player, int column)
+            throws InvalidColumnException
+    {    
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (!isValidColumn(column))</span>
+<span class="fc" id="L66">            throw new InvalidColumnException(</span>
+                    &quot;Column #&quot; + column + &quot; is full.&quot;,
+                    column);
+<span class="fc" id="L69">        int row = columnState[column];</span>
+<span class="fc" id="L70">        boardState[row][column] = player;</span>
+<span class="fc" id="L71">        columnState[column]++;</span>
+<span class="fc" id="L72">        return row;</span>
+    }
+    
+    /**
+     * Checks the board for a winner.
+     * 
+     * @return Integer representing winner or zero if none.
+     */
+    private int checkWinner()
+    {
+        //check rows     
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (int row = 0; row &lt; Connect4Constants.ROW_COUNT; row++)</span>
+        {
+<span class="fc" id="L85">            int counter = 1;</span>
+<span class="fc" id="L86">            int currentID = boardState[row][0];</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">            for (int col = 1; col &lt; Connect4Constants.COLUMN_COUNT; col++)</span>
+            {
+<span class="fc" id="L89">                int comparisonID = boardState[row][col];</span>
+<span class="fc bfc" id="L90" title="All 4 branches covered.">                if (comparisonID != 0 &amp;&amp; currentID == comparisonID)</span>
+<span class="fc" id="L91">                    counter++;</span>
+                else
+                {
+<span class="fc" id="L94">                    counter = 1;</span>
+<span class="fc" id="L95">                    currentID = comparisonID;</span>
+                }
+<span class="fc bfc" id="L97" title="All 2 branches covered.">                if (counter == WIN_CONDITION_COUNT)</span>
+<span class="fc" id="L98">                    return currentID;</span>
+            }
+        }
+        
+        //check columns
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        for (int col = 0; col &lt; Connect4Constants.COLUMN_COUNT; col++)</span>
+        {
+<span class="fc" id="L105">            int counter = 1;</span>
+<span class="fc" id="L106">            int currentID = boardState[0][col];</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            for (int row = 1; row &lt; Connect4Constants.ROW_COUNT; row++)</span>
+            {
+<span class="fc" id="L109">                int comparisonID = boardState[row][col];</span>
+<span class="fc bfc" id="L110" title="All 4 branches covered.">                if (comparisonID != 0 &amp;&amp; currentID == comparisonID)</span>
+<span class="fc" id="L111">                    counter++;</span>
+                else
+                {
+<span class="fc" id="L114">                    counter = 1;</span>
+<span class="fc" id="L115">                    currentID = comparisonID;</span>
+                }
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">                if (counter == WIN_CONDITION_COUNT)</span>
+<span class="nc" id="L118">                    return currentID;</span>
+            }
+        }
+        
+        //check upwards diagonals
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (int row = 2; row &gt;= 0; row--)</span>
+        {
+<span class="fc" id="L125">            int counter = 1;</span>
+<span class="fc" id="L126">            int currentID = boardState[row][0];</span>
+<span class="fc" id="L127">            for (int tempRow = row + 1, col = 1; </span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">                 tempRow &lt; Connect4Constants.ROW_COUNT; </span>
+<span class="fc" id="L129">                 tempRow++, col++)</span>
+            {
+<span class="fc" id="L131">                int comparisonID = boardState[tempRow][col];</span>
+<span class="fc bfc" id="L132" title="All 4 branches covered.">                if (comparisonID != 0 &amp;&amp; currentID == comparisonID)</span>
+<span class="fc" id="L133">                    counter++;</span>
+                else
+                {
+<span class="fc" id="L136">                    counter = 1;</span>
+<span class="fc" id="L137">                    currentID = comparisonID;</span>
+                }
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">                if (counter == WIN_CONDITION_COUNT)</span>
+<span class="nc" id="L140">                    return currentID;</span>
+            }
+        }
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        for (int col = 3; col &gt; 0; col--)</span>
+        {
+<span class="fc" id="L145">            int counter = 1;</span>
+<span class="fc" id="L146">            int currentID = boardState[0][col];</span>
+<span class="fc" id="L147">            for (int tempCol = col + 1, row = 1; </span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">                 tempCol &lt; Connect4Constants.COLUMN_COUNT; </span>
+<span class="fc" id="L149">                 tempCol++, row++)</span>
+            {
+<span class="fc" id="L151">                int comparisonID = boardState[row][tempCol];</span>
+<span class="fc bfc" id="L152" title="All 4 branches covered.">                if (comparisonID != 0 &amp;&amp; currentID == comparisonID)</span>
+<span class="fc" id="L153">                    counter++;</span>
+                else
+                {
+<span class="fc" id="L156">                    counter = 1;</span>
+<span class="fc" id="L157">                    currentID = comparisonID;</span>
+                }
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">                if (counter == WIN_CONDITION_COUNT)</span>
+<span class="nc" id="L160">                    return currentID;</span>
+            }
+        }
+        
+        //check downwards diagonals
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (int col = 3; col &gt; 0; col--)</span>
+        {
+<span class="fc" id="L167">            int counter = 1;</span>
+<span class="fc" id="L168">            int currentID = boardState[5][col];</span>
+<span class="fc" id="L169">            for (int tempCol = col + 1, row = 4; </span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">                 tempCol &lt; Connect4Constants.COLUMN_COUNT; </span>
+<span class="fc" id="L171">                 tempCol++, row--)</span>
+            {
+<span class="fc" id="L173">                int comparisonID = boardState[row][tempCol];</span>
+<span class="fc bfc" id="L174" title="All 4 branches covered.">                if (comparisonID != 0 &amp;&amp; currentID == comparisonID)</span>
+<span class="fc" id="L175">                    counter++;</span>
+                else
+                {
+<span class="fc" id="L178">                    counter = 1;</span>
+<span class="fc" id="L179">                    currentID = comparisonID;</span>
+                }
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">                if (counter == WIN_CONDITION_COUNT)</span>
+<span class="nc" id="L182">                    return currentID;</span>
+            }
+        }
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        for (int row = 3; row &lt; Connect4Constants.ROW_COUNT; row++)</span>
+        {
+<span class="fc" id="L187">            int counter = 1;</span>
+<span class="fc" id="L188">            int currentID = boardState[row][0];</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">            for (int tempRow = row - 1, col = 1; tempRow &gt;= 0; tempRow--, col++)</span>
+            {
+<span class="fc" id="L191">                int comparisonID = boardState[tempRow][col];</span>
+<span class="fc bfc" id="L192" title="All 4 branches covered.">                if (comparisonID != 0 &amp;&amp; currentID == comparisonID)</span>
+<span class="fc" id="L193">                    counter++;</span>
+                else
+                {
+<span class="fc" id="L196">                    counter = 1;</span>
+<span class="fc" id="L197">                    currentID = comparisonID;</span>
+                }
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">                if (counter == WIN_CONDITION_COUNT)</span>
+<span class="nc" id="L200">                    return currentID;</span>
+            }
+        }
+        
+<span class="fc" id="L204">        return 0;</span>
+    }
+    
+    /** Checks the current board and returns any defined result.
+     * 
+     * @return The {@link GameStatus} of the current board.
+     */
+    public GameStatus checkStatus()
+    {
+<span class="fc" id="L213">        GameStatus result = GameStatus.NONE;</span>
+<span class="fc" id="L214">        int winner = checkWinner();</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        if (winner == Connect4Constants.PLAYER1)</span>
+<span class="fc" id="L216">            result = GameStatus.PLAYER1_WIN;</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        else if (winner == Connect4Constants.PLAYER2)</span>
+<span class="fc" id="L218">            result = GameStatus.PLAYER2_WIN;</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">        else if (isBoardFull())</span>
+<span class="fc" id="L220">            result = GameStatus.TIE;</span>
+<span class="fc" id="L221">        return result;</span>
+    }
+    
+    /**
+     * Clears the game board.
+     */
+    public final void clear()
+    {
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        for (int row = 0; row &lt; Connect4Constants.ROW_COUNT; row++)</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">            for (int col = 0; col &lt; Connect4Constants.COLUMN_COUNT; col++)</span>
+<span class="fc" id="L231">                boardState[row][col] = 0;</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        for (int i = 0; i &lt; Connect4Constants.COLUMN_COUNT; i++)</span>
+<span class="fc" id="L233">            columnState[i] = 0;</span>
+<span class="fc" id="L234">    }</span>
+    
+    /**
+     * Returns the current board state.
+     * 
+     * @return The board state.
+     */
+    public int[][] getBoard()
+    {
+<span class="fc" id="L243">        return boardState;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

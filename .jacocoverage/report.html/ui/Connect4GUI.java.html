@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Connect4GUI.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;ConnectFour&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">ui</a> &gt; <span class="el_source">Connect4GUI.java</span></div><h1>Connect4GUI.java</h1><pre class="source lang-java linenums">
+package ui;
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.Node;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.TextField;
+import core.*;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+
+/** Represents a Connect4 graphical user interface.
+ *
+ * @author Jon McKee
+ * @version 1.0
+ */
+<span class="nc" id="L25">public class Connect4GUI extends Application</span>
+{
+    /**
+     * The type of game played when &quot;New Game&quot; is selected.
+     */
+<span class="nc" id="L30">    enum GameType</span>
+    {
+<span class="nc" id="L32">        TWO_PLAYER,</span>
+<span class="nc" id="L33">        VS_COMPUTER</span>
+    }
+    private static final char PLAYER1_PIECE = 'X';
+    private static final char PLAYER2_PIECE = 'O';
+<span class="nc" id="L37">    private final int STAGE_SIZE = 400;</span>
+    private GameType currentGameType;
+    private TextField statusBar;
+    private GridPane board;
+    private int playerID;
+    private IConnect4Client client;
+    
+    /** Callback for a game request.
+     * 
+     * @param playerID ID assigned to this player.
+     */
+    private void gameStart(int playerID)
+    {
+<span class="nc" id="L50">        this.playerID = playerID;</span>
+<span class="nc" id="L51">    }</span>
+    
+    /** Callback for updating the board.
+     * 
+     * @param playerID Player that placed a piece.
+     * @param row Row the piece is placed in.
+     * @param column Column the piece is placed in.
+     */
+    private void updateBoard(int playerID, int row, int column)
+    {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        char playerSymbol = playerID == Connect4Constants.PLAYER1 ?</span>
+                PLAYER1_PIECE :
+                PLAYER2_PIECE;
+<span class="nc" id="L64">        int invertedRow = Connect4Constants.ROW_COUNT - row - 1;</span>
+<span class="nc" id="L65">        Platform.runLater(() -&gt; {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            for (Node node : board.getChildren())</span>
+            {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                if (GridPane.getColumnIndex(node) == column &amp;&amp;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                    GridPane.getRowIndex(node) == invertedRow)</span>
+                {
+<span class="nc" id="L71">                    TextField targetCell = (TextField) node;</span>
+<span class="nc" id="L72">                    targetCell.setText(</span>
+                            &quot;&quot; + playerSymbol);
+<span class="nc bnc" id="L74" title="All 2 branches missed.">                    if (playerID == Connect4Constants.PLAYER1)</span>
+<span class="nc" id="L75">                        targetCell.setStyle(</span>
+                                &quot;-fx-background-color:lightblue;&quot;);                      
+                    else
+<span class="nc" id="L78">                        targetCell.setStyle(</span>
+                                &quot;-fx-background-color:tomato;&quot;);
+<span class="nc" id="L80">                    break;</span>
+                }
+<span class="nc" id="L82">            }</span>
+<span class="nc" id="L83">        });</span>
+<span class="nc" id="L84">    }</span>
+    
+    /** Callback for current game status.
+     * 
+     * @param status Current {@link GameStatus}.
+     */
+    private void gameStatus(GameStatus status)
+    {
+<span class="nc" id="L92">        Platform.runLater(() -&gt; {</span>
+<span class="nc bnc" id="L93" title="All 7 branches missed.">            switch (status)</span>
+            {
+                case NONE:
+<span class="nc" id="L96">                    statusBar.setText(&quot;Your turn.&quot;);</span>
+<span class="nc" id="L97">                    board.setDisable(false);</span>
+<span class="nc" id="L98">                    break;</span>
+                case CANCELLED:
+<span class="nc" id="L100">                    statusBar.setText(&quot;Game cancelled.&quot;);</span>
+<span class="nc" id="L101">                    board.setDisable(true);</span>
+<span class="nc" id="L102">                    break;</span>
+                case INVALID_MOVE:
+<span class="nc" id="L104">                    statusBar.setText(&quot;Choose a valid column.&quot;);</span>
+<span class="nc" id="L105">                    board.setDisable(false);</span>
+<span class="nc" id="L106">                    break;</span>
+                case TIE:
+<span class="nc" id="L108">                    statusBar.setText(&quot;Game tied!&quot;);</span>
+<span class="nc" id="L109">                    board.setDisable(true);</span>
+<span class="nc" id="L110">                    break;</span>
+                case PLAYER1_WIN:
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                    if (playerID == Connect4Constants.PLAYER1)</span>
+<span class="nc" id="L113">                        statusBar.setText(&quot;You won!&quot;);</span>
+                    else
+<span class="nc" id="L115">                        statusBar.setText(&quot;You lost.&quot;);</span>
+<span class="nc" id="L116">                    board.setDisable(true);</span>
+<span class="nc" id="L117">                    break;</span>
+                case PLAYER2_WIN:
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                    if (playerID == Connect4Constants.PLAYER2)</span>
+<span class="nc" id="L120">                        statusBar.setText(&quot;You won!&quot;);</span>
+                    else
+<span class="nc" id="L122">                        statusBar.setText(&quot;You lost.&quot;);</span>
+<span class="nc" id="L123">                    board.setDisable(true);</span>
+                    break;
+            }
+<span class="nc" id="L126">        });</span>
+<span class="nc" id="L127">    }</span>
+    
+    /**
+     * Creates the GUI status bar.
+     */
+    private void setupStatusBar()
+    {
+<span class="nc" id="L134">        statusBar = new TextField(&quot;Welcome to Connect4!&quot;);</span>
+<span class="nc" id="L135">        statusBar.setAlignment(Pos.CENTER);  </span>
+<span class="nc" id="L136">        statusBar.setStyle(</span>
+                &quot;-fx-background-color:lightgrey;-fx-highlight-fill:lightgrey;&quot;);
+<span class="nc" id="L138">        statusBar.setEditable(false);</span>
+<span class="nc" id="L139">        statusBar.setMouseTransparent(true);</span>
+<span class="nc" id="L140">        statusBar.setFocusTraversable(false);</span>
+<span class="nc" id="L141">    }</span>
+    
+    /** Creates the GUI menu bar.
+     * 
+     * @return {@link MenuBar} for the GUI.
+     */
+    private MenuBar createMenuBar()
+    {
+        //Create file menu.
+<span class="nc" id="L150">        Menu fileMenu = new Menu(&quot;File&quot;);</span>
+<span class="nc" id="L151">        MenuItem newGame = new MenuItem(&quot;New Game&quot;);</span>
+<span class="nc" id="L152">        newGame.setOnAction(event -&gt; {</span>
+<span class="nc" id="L153">            resetBoard();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (client != null)</span>
+<span class="nc" id="L155">                client.cancelGame();</span>
+<span class="nc bnc" id="L156" title="All 3 branches missed.">            switch (currentGameType)</span>
+            {
+                case VS_COMPUTER:
+<span class="nc" id="L159">                    client = new Connect4ComputerPlayer(</span>
+                            this::gameStart,
+                            this::updateBoard,
+                            this::gameStatus);
+<span class="nc" id="L163">                    break;</span>
+                case TWO_PLAYER:
+<span class="nc" id="L165">                    client = new Connect4Client(</span>
+                            this::gameStart,
+                            this::updateBoard,
+                            this::gameStatus);
+                    break;
+            }
+<span class="nc" id="L171">            client.requestGame();</span>
+<span class="nc" id="L172">        });</span>
+<span class="nc" id="L173">        MenuItem exit = new MenuItem(&quot;Exit&quot;);</span>
+<span class="nc" id="L174">        exit.setOnAction(event -&gt; Platform.exit());</span>
+<span class="nc" id="L175">        fileMenu.getItems().addAll(newGame, exit);</span>
+        
+        //Create game menu.
+<span class="nc" id="L178">        Menu gameMenu = new Menu(&quot;Options&quot;);</span>
+<span class="nc" id="L179">        CheckMenuItem versusComputer = new CheckMenuItem(&quot;Versus Computer&quot;);</span>
+<span class="nc" id="L180">        CheckMenuItem twoPlayer = new CheckMenuItem(&quot;Versus Player&quot;);</span>
+<span class="nc" id="L181">        versusComputer.setOnAction(event -&gt; {</span>
+<span class="nc" id="L182">            CheckMenuItem item = (CheckMenuItem) event.getTarget();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            if (item.isSelected())</span>
+            {
+<span class="nc" id="L185">                twoPlayer.setSelected(false);</span>
+<span class="nc" id="L186">                currentGameType = GameType.VS_COMPUTER;</span>
+            } else {
+<span class="nc" id="L188">                twoPlayer.setSelected(true);</span>
+<span class="nc" id="L189">                currentGameType = GameType.TWO_PLAYER;</span>
+            }
+<span class="nc" id="L191">        });              </span>
+<span class="nc" id="L192">        twoPlayer.setOnAction(event -&gt; {</span>
+<span class="nc" id="L193">            CheckMenuItem item = (CheckMenuItem) event.getTarget();</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (item.isSelected())</span>
+            {
+<span class="nc" id="L196">                versusComputer.setSelected(false);</span>
+<span class="nc" id="L197">                currentGameType = GameType.TWO_PLAYER;</span>
+            } else {
+<span class="nc" id="L199">                versusComputer.setSelected(true);</span>
+<span class="nc" id="L200">                currentGameType = GameType.VS_COMPUTER;</span>
+            }
+<span class="nc" id="L202">        });</span>
+<span class="nc" id="L203">        versusComputer.setSelected(true);</span>
+<span class="nc" id="L204">        twoPlayer.setSelected(false);</span>
+<span class="nc" id="L205">        currentGameType = GameType.VS_COMPUTER;</span>
+<span class="nc" id="L206">        gameMenu.getItems().addAll(versusComputer, twoPlayer);</span>
+        
+        //Create menu bar.
+<span class="nc" id="L209">        MenuBar menu = new MenuBar();</span>
+<span class="nc" id="L210">        menu.getMenus().addAll(fileMenu, gameMenu);</span>
+<span class="nc" id="L211">        return menu;</span>
+    }
+    
+    /** Creates a Connect4 game board.
+     * 
+     * @return {@link GridPane} representing the board.
+     */
+    private GridPane createBoard()
+    {
+<span class="nc" id="L220">        GridPane tempBoard = new GridPane();</span>
+<span class="nc" id="L221">        int cellSize = STAGE_SIZE / 10;</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        for (int i = 0; i &lt; Connect4Constants.ROW_COUNT; i++)</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            for (int j = 0; j &lt; Connect4Constants.COLUMN_COUNT; j++)</span>
+            {
+<span class="nc" id="L225">                TextField cell = new TextField();</span>
+<span class="nc" id="L226">                cell.setStyle(</span>
+                        &quot;-fx-border-color:black;-fx-border-width:1;&quot; +
+                        &quot;-fx-border-style:solid;&quot;);
+<span class="nc" id="L229">                cell.setPrefSize(cellSize, cellSize);</span>
+<span class="nc" id="L230">                cell.setEditable(false);</span>
+<span class="nc" id="L231">                cell.setFocusTraversable(false);</span>
+<span class="nc" id="L232">                cell.setCursor(Cursor.HAND);</span>
+<span class="nc" id="L233">                cell.setOnMouseClicked(event -&gt; {</span>
+<span class="nc" id="L234">                    TextField chosenCell = (TextField) event.getSource();</span>
+<span class="nc" id="L235">                    int columnIndex = GridPane.getColumnIndex(chosenCell);</span>
+<span class="nc" id="L236">                    client.addPiece(columnIndex);</span>
+<span class="nc" id="L237">                    board.setDisable(true);</span>
+<span class="nc" id="L238">                });</span>
+<span class="nc" id="L239">                tempBoard.add(cell, j, i);</span>
+            }
+<span class="nc" id="L241">        tempBoard.setPrefSize(Connect4Constants.COLUMN_COUNT * cellSize,</span>
+                Connect4Constants.ROW_COUNT * cellSize);
+<span class="nc" id="L243">        tempBoard.setAlignment(Pos.CENTER);</span>
+<span class="nc" id="L244">        return tempBoard;</span>
+    }
+    
+    /** Resets the board state.
+     */
+    private void resetBoard()
+    {
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        for (Node node : board.getChildren())</span>
+        {
+<span class="nc" id="L253">            TextField cell = (TextField) node;</span>
+<span class="nc" id="L254">            cell.setStyle(</span>
+                    &quot;-fx-border-color:black;-fx-border-width:1;&quot; +
+                    &quot;-fx-border-style:solid;&quot;);
+<span class="nc" id="L257">            cell.setText(&quot;&quot;);</span>
+<span class="nc" id="L258">        }</span>
+<span class="nc" id="L259">        board.setDisable(true);</span>
+<span class="nc" id="L260">    }</span>
+    
+    /** Starts up the Connect4 GUI application
+     * 
+     * @param mainStage Stage to create the main GUI on.
+     */
+    @Override
+    public void start(Stage mainStage)
+    {
+<span class="nc" id="L269">        setupStatusBar();</span>
+<span class="nc" id="L270">        board = createBoard();</span>
+<span class="nc" id="L271">        board.setDisable(true);</span>
+<span class="nc" id="L272">        MenuBar menu = createMenuBar();</span>
+        
+        //Create main layout.
+<span class="nc" id="L275">        BorderPane gui = new BorderPane();</span>
+<span class="nc" id="L276">        gui.setTop(menu);</span>
+<span class="nc" id="L277">        gui.setCenter(board);</span>
+<span class="nc" id="L278">        gui.setBottom(statusBar);</span>
+        
+        //Scene and Stage setup
+<span class="nc" id="L281">        Scene scene = new Scene(gui, STAGE_SIZE, STAGE_SIZE);</span>
+<span class="nc" id="L282">        mainStage.setTitle(&quot;Connect4&quot;);</span>
+<span class="nc" id="L283">        mainStage.setScene(scene);</span>
+<span class="nc" id="L284">        mainStage.show();</span>
+<span class="nc" id="L285">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
